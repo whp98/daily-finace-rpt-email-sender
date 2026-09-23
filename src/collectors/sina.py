@@ -61,6 +61,87 @@ class SinaCollector(BaseCollector):
         except Exception:
             return None
 
+    def parse_int_quote(self, code: str, raw_str: str, asset_def: dict) -> Optional[AssetQuote]:
+        # int_ftse="伦敦指数,9284.83,70.85,0.77"
+        # Format: name, latest, change_val, change_pct
+        parts = raw_str.split(",")
+        if len(parts) < 4:
+            return None
+        try:
+            latest = float(parts[1])
+            change_val = float(parts[2])
+            change_pct = float(parts[3])
+            prev = latest - change_val
+            return AssetQuote(
+                name=asset_def["name"],
+                symbol=asset_def["symbol"],
+                category=asset_def["category"],
+                latest_price=f"{latest:.2f}",
+                prev_close=f"{prev:.2f}",
+                change_pct=change_pct,
+                change_val=f"{change_val:+.2f}",
+                volume="-",
+                quote_time=""
+            )
+        except Exception:
+            return None
+
+    def parse_b_quote(self, code: str, raw_str: str, asset_def: dict) -> Optional[AssetQuote]:
+        # b_TWSE="台湾台北指数,25580.32,-443.53,-1.70,9/26/2025,..."
+        # b_KOSPI="韩国KOSPI指数,7080.9200,63.01,0.90,..."
+        # Format: name, latest, change_val, change_pct, ...
+        parts = raw_str.split(",")
+        if len(parts) < 4:
+            return None
+        try:
+            latest = float(parts[1])
+            change_val = float(parts[2])
+            change_pct = float(parts[3])
+            prev = latest - change_val
+            return AssetQuote(
+                name=asset_def["name"],
+                symbol=asset_def["symbol"],
+                category=asset_def["category"],
+                latest_price=f"{latest:.2f}",
+                prev_close=f"{prev:.2f}",
+                change_pct=change_pct,
+                change_val=f"{change_val:+.2f}",
+                volume="-",
+                quote_time=""
+            )
+        except Exception:
+            return None
+
+    def parse_gb_quote(self, code: str, raw_str: str, asset_def: dict) -> Optional[AssetQuote]:
+        # Format: name, latest, change_pct(%), datetime, change_val, open, high, low, ..., volume(parts[10]), ..., prev_close(parts[26])
+        parts = raw_str.split(",")
+        if len(parts) < 5:
+            return None
+        try:
+            latest = float(parts[1])
+            change_pct = float(parts[2])
+            time_str = parts[3] if len(parts) > 3 else ""
+            change_val = float(parts[4]) if len(parts) > 4 else 0.0
+            if len(parts) > 26 and parts[26]:
+                prev = float(parts[26])
+            else:
+                prev = latest - change_val
+            vol_str = parts[10] if len(parts) > 10 and parts[10] else ""
+            vol = float(vol_str) if vol_str else 0.0
+            return AssetQuote(
+                name=asset_def["name"],
+                symbol=asset_def["symbol"],
+                category=asset_def["category"],
+                latest_price=f"{latest:.2f}",
+                prev_close=f"{prev:.2f}",
+                change_pct=change_pct,
+                change_val=f"{change_val:+.2f}",
+                volume=format_volume(vol),
+                quote_time=time_str
+            )
+        except Exception:
+            return None
+
     async def fetch_quotes(self, assets: list[dict]) -> dict[str, AssetQuote]:
         target_assets = [a for a in assets if a.get("sina_code")]
         if not target_assets:
@@ -89,6 +170,12 @@ class SinaCollector(BaseCollector):
                             q = self.parse_hf_quote(clean_code, raw_data, asset_def)
                         elif clean_code.startswith("fx_"):
                             q = self.parse_fx_quote(clean_code, raw_data, asset_def)
+                        elif clean_code.startswith("int_"):
+                            q = self.parse_int_quote(clean_code, raw_data, asset_def)
+                        elif clean_code.startswith("b_"):
+                            q = self.parse_b_quote(clean_code, raw_data, asset_def)
+                        elif clean_code.startswith("gb_"):
+                            q = self.parse_gb_quote(clean_code, raw_data, asset_def)
                         else:
                             q = None
                         if q:

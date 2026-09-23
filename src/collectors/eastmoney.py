@@ -44,15 +44,18 @@ class EastmoneyCollector(BaseCollector):
         async with httpx.AsyncClient(timeout=self.timeout, headers=self.headers) as client:
             for asset in target_assets:
                 secid = asset["eastmoney_secid"]
-                url = f"http://push2.eastmoney.com/api/qt/stock/get?secid={secid}&fields=f57,f58,f43,f60,f169,f170,f47,f124"
-                try:
-                    resp = await client.get(url)
-                    if resp.status_code == 200:
-                        payload = resp.json().get("data")
-                        if payload:
-                            q = self.parse_quote(payload, asset)
-                            if q:
-                                results[asset["symbol"]] = q
-                except Exception:
-                    pass
+                hosts = ["18.push2.eastmoney.com", "push2.eastmoney.com"]
+                for host in hosts:
+                    url = f"http://{host}/api/qt/stock/get?secid={secid}&fields=f57,f58,f43,f60,f169,f170,f47,f124"
+                    try:
+                        resp = await client.get(url)
+                        if resp.status_code == 200:
+                            payload = resp.json().get("data")
+                            if payload:
+                                q = self.parse_quote(payload, asset)
+                                if q:
+                                    results[asset["symbol"]] = q
+                                    break
+                    except Exception:
+                        pass
         return results

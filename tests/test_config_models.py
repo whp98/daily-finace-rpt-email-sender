@@ -32,7 +32,7 @@ def test_asset_quote_color_calc():
 
 def test_load_assets_config():
     assets = load_assets_config("config/assets.yaml")
-    assert len(assets) == 22
+    assert len(assets) == 21
     categories = {a["category"] for a in assets}
     assert "欧美核心股指" in categories
     assert "亚太重点股指" in categories

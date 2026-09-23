@@ -20,7 +20,9 @@ def load_env_file(filepath: str = "local.env"):
                 continue
             if "=" in line:
                 k, v = line.split("=", 1)
-                os.environ.setdefault(k.strip(), v.strip())
+                k = k.strip()
+                v = v.strip().strip("'\"")
+                os.environ.setdefault(k, v)
 
 def get_settings() -> Settings:
     load_env_file()
