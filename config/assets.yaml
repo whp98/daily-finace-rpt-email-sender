@@ -144,7 +144,7 @@ assets:
     category: "数字与恐慌资产"
     eastmoney_secid: ""
     tencent_code: "s_usVIX"
-    sina_code: ""
+    sina_code: "vix"
     yahoo_ticker: "^VIX"
   - name: "俄罗斯市值加权指数"
     symbol: "RTS"
