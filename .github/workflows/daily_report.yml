@@ -21,6 +21,7 @@ on:
 jobs:
   report:
     runs-on: ubuntu-latest
+    environment: GMAIL_USER
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
