@@ -43,5 +43,11 @@ jobs:
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           TIMEZONE: 'Asia/Shanghai'
         run: |
+          export GMAIL_USER="${GMAIL_USER}"
+          export GMAIL_APP_PASSWORD="${GMAIL_APP_PASSWORD}"
+          export EMAIL_TO="${EMAIL_TO}"
+          export TIMEZONE="${TIMEZONE}"
+          echo "GMAIL_USER set: ${GMAIL_USER:+yes}"
+          echo "EMAIL_TO set: ${EMAIL_TO:+yes}"
           RTYPE="${{ github.event.inputs.report_type || 'auto' }}"
           uv run python main.py --report-type "$RTYPE"
