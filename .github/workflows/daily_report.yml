@@ -2,10 +2,12 @@ name: Global Finance Daily Report
 
 on:
   schedule:
-    # 早报：北京时间周一至周五 07:30 (UTC 时间周日至周四 23:30)
-    - cron: '30 23 * * 0-4'
-    # 晚报：北京时间周一至周五 17:30 (UTC 时间周一至周五 09:30)
-    - cron: '30 9 * * 1-5'
+    # 早报：北京时间周一至周五
+    - cron: '35 9 * * 1-5'
+      timezone: "Asia/Shanghai"
+    # 晚报：北京时间周一至周五
+    - cron: '40 19 * * 1-5'
+      timezone: "Asia/Shanghai"
   workflow_dispatch:
     inputs:
       report_type:
